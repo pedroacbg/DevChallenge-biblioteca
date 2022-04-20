@@ -5,6 +5,8 @@ package com.pedroanjos.biblioteca.services;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +43,18 @@ public class LibraryService {
 		copyDtoToEntity(dto, entity);
 		entity = repository.save(entity);
 		return new LibraryDTO(entity);
+	}
+	
+	@Transactional
+	public LibraryDTO update(Long id, LibraryDTO dto) {
+		try {
+			Library entity = repository.getById(id);
+			copyDtoToEntity(dto, entity);
+			entity = repository.save(entity);
+			return new LibraryDTO(entity);
+		}catch(EntityNotFoundException e) {
+			throw new EntityNotFoundException("Id not found " + id);
+		}
 	}
 	
 	
