@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pedroanjos.biblioteca.domain.Authors;
 import com.pedroanjos.biblioteca.domain.Library;
+import com.pedroanjos.biblioteca.domain.dto.AuthorsDTO;
 import com.pedroanjos.biblioteca.domain.dto.LibraryDTO;
 import com.pedroanjos.biblioteca.repository.AuthorRepository;
 import com.pedroanjos.biblioteca.repository.LibraryRepository;
@@ -32,6 +33,28 @@ public class LibraryService {
 		Page<Library> page = repository.find(authors, name, pageable);
 		repository.findLibrariesWithAuthors(page.getContent());
 		return page.map(x -> new LibraryDTO(x, x.getAuthors()));
+	}
+	
+	@Transactional
+	public LibraryDTO insert(LibraryDTO dto) {
+		Library entity = new Library();
+		copyDtoToEntity(dto, entity);
+		entity = repository.save(entity);
+		return new LibraryDTO(entity);
+	}
+	
+	
+	private void copyDtoToEntity(LibraryDTO dto, Library entity) {
+		entity.setTitle(dto.getTitle());
+		entity.setPublisher(dto.getPublisher());
+		entity.setImgUrl(dto.getImgUrl());
+		
+		
+		entity.getAuthors().clear();
+		for(AuthorsDTO authDto : dto.getAuthors()) {
+			Authors authors = authorRepository.getById(authDto.getId());
+			entity.getAuthors().add(authors);
+		}
 	}
 	
 }
